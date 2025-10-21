@@ -22,7 +22,7 @@ Visit `http://localhost:3000`
 
 ## Features
 
-- 15 popular stocks on the homepage
+- 18 popular stocks on the homepage
 - Detailed company info, price history, and charts
 - Dark/light mode
 - Fully responsive
@@ -58,6 +58,32 @@ For 18 stocks with full data, that's 36 requests (OVERVIEW + PRICES for each). T
 - First visit: Can view ~12 different stocks
 - After that: Everything loads instantly from cache
 - Works great for normal browsing
+
+## Engineering Decisions
+
+### Caching
+
+MarketLens uses simple **file-based caching** for clarity and control.
+It's stored in `.next/cache/alphavantage`, which works well for self-hosted or long-running instances.
+On platforms like **Vercel** or **Coolify**, this cache may reset during rebuilds since those environments create new containers per deploy.
+For a larger production setup, I'd likely switch to **Redis** for persistent and distributed caching.
+For this project, file-based storage keeps things transparent and avoids unnecessary dependencies.
+
+### Logos
+
+Logos are stored **locally** in `/public/logos` rather than fetched live from Clearbit.
+This avoids API dependency issues and ensures consistent visuals and offline reliability.
+It also makes it easy to replace or edit logos manually later.
+
+### Rate Limits
+
+AlphaVantage's 25-call/day cap shaped how data is fetched:
+
+* **Prices:** Cached for 24h (frequently changing)
+* **Overviews:** Cached for 7d (rarely changing, staggered refresh)
+* Old cache is reused when limits are hit
+
+This design guarantees smooth behavior even when the free-tier API quota is reached.
 
 ## Project Structure
 
@@ -126,4 +152,4 @@ Add your `ALPHAVANTAGE_API_KEY` environment variable in your deployment settings
 - Company logos are stored locally in `/public/logos/`
 - Cache is stored in `.next/cache/alphavantage/`
 - The rate limiter ensures we stay under API limits
-- All 15 stocks can be viewed after the initial cache population
+- All 18 stocks can be viewed after the initial cache population
