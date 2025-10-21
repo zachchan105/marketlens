@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, TrendingDown, ArrowLeft, AlertCircle, AlertTriangle } from "lucide-react";
+import { MarketLensLoader } from "@/components/market-lens-loader";
 import { cn } from "@/lib/utils";
 import { StockChart } from "@/components/stock-chart";
 import { StockMetrics } from "@/components/stock-metrics";
@@ -74,15 +74,16 @@ export default function StockDetailPage() {
       <div className="min-h-screen bg-background">
         <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-            <Skeleton className="h-10 w-48" />
-            <Skeleton className="h-9 w-9 rounded-lg" />
+            <Button variant="ghost" size="sm" disabled className="-ml-2">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Market
+            </Button>
+            <ThemeToggle />
           </div>
         </header>
         <main className="container mx-auto px-4 py-8">
-          <div className="space-y-6">
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-96 w-full" />
-            <Skeleton className="h-64 w-full" />
+          <div className="flex items-center justify-center min-h-[60vh]">
+            <MarketLensLoader size="lg" />
           </div>
         </main>
       </div>
@@ -158,19 +159,14 @@ export default function StockDetailPage() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="space-y-6">
-          {/* Rate Limit Alert */}
-          {(metadata.overview?.isStale || metadata.prices?.isStale) && (
+          {/* Rate Limit Alert - only show if data is actually stale */}
+          {metadata.prices?.isStale && metadata.prices.age > 60000 && (
             <Alert>
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                Showing cached data. API rate limit may have been reached (25 requests/day). 
-                Data freshness: {metadata.prices && (
-                  <DataFreshnessBadge
-                    fetchedAt={metadata.prices.fetchedAt}
-                    age={metadata.prices.age}
-                    isStale={metadata.prices.isStale}
-                  />
-                )}
+                Using cached data from{" "}
+                {new Date(metadata.prices.fetchedAt).toLocaleString()}.
+                API rate limit may have been reached (25 requests/day).
               </AlertDescription>
             </Alert>
           )}
