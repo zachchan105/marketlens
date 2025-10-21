@@ -15,11 +15,12 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { DataFreshnessBadge } from "@/components/data-freshness-badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CacheMetadata } from "@/lib/cache";
+import { FEATURED_TICKERS } from "@/lib/tickers";
 
 export default function StockDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const symbol = params?.symbol as string;
+  const symbol = (params?.symbol as string)?.toUpperCase();
 
   const [overview, setOverview] = useState<CompanyOverview | null>(null);
   const [prices, setPrices] = useState<DailyPrice[]>([]);
@@ -30,8 +31,28 @@ export default function StockDetailPage() {
     prices?: CacheMetadata;
   }>({});
 
+  // Validate symbol against featured tickers
   useEffect(() => {
     if (!symbol) return;
+    
+    const isValidSymbol = FEATURED_TICKERS.some(
+      (ticker) => ticker.symbol === symbol
+    );
+    
+    if (!isValidSymbol) {
+      router.push('/');
+      return;
+    }
+  }, [symbol, router]);
+
+  useEffect(() => {
+    if (!symbol) return;
+
+    // Skip fetch if symbol is invalid
+    const isValidSymbol = FEATURED_TICKERS.some(
+      (ticker) => ticker.symbol === symbol
+    );
+    if (!isValidSymbol) return;
 
     async function fetchData() {
       try {
