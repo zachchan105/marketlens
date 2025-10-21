@@ -35,13 +35,13 @@
 }
 
 :root {
-  --background: oklch(0.97 0.005 100); /* Warm off-white instead of pure white */
+  --background: oklch(0.97 0.005 100);
   --foreground: oklch(0.15 0.01 100);
-  --card: oklch(0.985 0.005 100); /* Soft cream instead of pure white */
+  --card: oklch(0.985 0.005 100);
   --card-foreground: oklch(0.15 0.01 100);
   --popover: oklch(0.985 0.005 100);
   --popover-foreground: oklch(0.15 0.01 100);
-  --primary: oklch(0.75 0.15 180); /* Aqua accent */
+  --primary: oklch(0.75 0.15 180);
   --primary-foreground: oklch(0.09 0 0);
   --secondary: oklch(0.94 0.01 100);
   --secondary-foreground: oklch(0.15 0.01 100);
@@ -51,7 +51,7 @@
   --accent-foreground: oklch(0.15 0.01 100);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.88 0.01 100); /* Softer borders */
+  --border: oklch(0.88 0.01 100);
   --input: oklch(0.88 0.01 100);
   --ring: oklch(0.75 0.15 180);
   --chart-1: oklch(0.55 0.18 180);
@@ -69,7 +69,7 @@
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.12 0 0);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.75 0.15 180); /* Aqua accent */
+  --primary: oklch(0.75 0.15 180);
   --primary-foreground: oklch(0.09 0 0);
   --secondary: oklch(0.18 0 0);
   --secondary-foreground: oklch(0.98 0 0);

@@ -14,15 +14,13 @@ export function RecentStocks() {
   const [recentStocks, setRecentStocks] = useState<RecentStock[]>([]);
 
   useEffect(() => {
-    // Read from localStorage
     const stored = localStorage.getItem("recentStocks");
     if (stored) {
       try {
         const parsed: RecentStock[] = JSON.parse(stored);
-        // Show only the 5 most recent
         setRecentStocks(parsed.slice(0, 5));
       } catch {
-        // Invalid data, ignore
+        // Non-fatal
       }
     }
   }, []);
@@ -47,7 +45,6 @@ export function RecentStocks() {
         </span>
       </div>
       
-      {/* Desktop: Horizontal */}
       <div className="hidden lg:flex items-center gap-4">
         {recentStocks.map((recent) => {
           const ticker = FEATURED_TICKERS.find(t => t.symbol === recent.symbol);
@@ -72,7 +69,6 @@ export function RecentStocks() {
         })}
       </div>
 
-      {/* Mobile: Compact list */}
       <div className="flex lg:hidden flex-wrap gap-2">
         {recentStocks.map((recent) => {
           const ticker = FEATURED_TICKERS.find(t => t.symbol === recent.symbol);

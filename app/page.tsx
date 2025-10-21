@@ -7,16 +7,13 @@ import { AnimatedBackground } from "@/components/animated-background";
 import { RecentStocks } from "@/components/recent-stocks";
 
 export default async function HomePage() {
-  // Read cached data from files (no API calls!)
   const cachedData = await getCachedStockData(
     FEATURED_TICKERS.map(t => t.symbol)
   );
   
-  // Check if any stock has cached data
   const hasAnyCachedData = Object.values(cachedData).some(data => data !== null);
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Animated grid background */}
       <AnimatedBackground />
       
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 relative">
@@ -42,7 +39,6 @@ export default async function HomePage() {
             </p>
           </div>
           
-          {/* Recent Stocks Toolbar */}
           <RecentStocks />
         </div>
 

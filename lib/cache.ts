@@ -12,7 +12,7 @@ export interface CacheEntry<T> {
 export interface CacheMetadata {
   fromCache: boolean;
   fetchedAt: number;
-  age: number; // milliseconds since fetch
+  age: number;
   isStale: boolean;
 }
 
@@ -20,7 +20,7 @@ async function ensureCacheDir() {
   try {
     await fs.mkdir(CACHE_DIR, { recursive: true });
   } catch {
-    // Cache is optional, fail silently
+    // Cache failures are non-fatal
   }
 }
 
@@ -33,7 +33,6 @@ function isValid<T>(entry: CacheEntry<T>): boolean {
   return Date.now() - entry.timestamp < entry.ttl;
 }
 
-// Get cached data with freshness metadata
 export async function getCacheWithMetadata<T>(key: string): Promise<{
   data: T;
   metadata: CacheMetadata;
@@ -60,7 +59,6 @@ export async function getCacheWithMetadata<T>(key: string): Promise<{
   }
 }
 
-// Get cached data if still fresh, otherwise return null
 export async function getCache<T>(key: string): Promise<T | null> {
   try {
     const cachePath = getCachePath(key);
@@ -71,15 +69,12 @@ export async function getCache<T>(key: string): Promise<T | null> {
       return entry.data;
     }
     
-    // Keep expired cache as fallback, but return null to trigger fresh fetch
     return null;
   } catch (error) {
-    // File doesn't exist or other error
     return null;
   }
 }
 
-// Save data to cache with TTL
 export async function setCache<T>(
   key: string,
   data: T,
@@ -95,11 +90,10 @@ export async function setCache<T>(
     };
     await fs.writeFile(cachePath, JSON.stringify(entry), 'utf-8');
   } catch (error) {
-    // Silently fail - cache is optional
+    // Cache failures are non-fatal
   }
 }
 
-// Get cache data even if expired (for fallback)
 export async function getStaleCache<T>(key: string): Promise<{
   data: T;
   timestamp: number;
@@ -117,12 +111,11 @@ export async function getStaleCache<T>(key: string): Promise<{
   }
 }
 
-// Clear all cached data
 export async function clearCache(): Promise<void> {
   try {
     await fs.rm(CACHE_DIR, { recursive: true, force: true });
   } catch (error) {
-    // Silently fail
+    // Non-fatal
   }
 }
 

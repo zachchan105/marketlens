@@ -32,7 +32,6 @@ export default function StockDetailPage() {
     prices?: CacheMetadata;
   }>({});
 
-  // Validate symbol against featured tickers
   useEffect(() => {
     if (!symbol) return;
     
@@ -45,7 +44,6 @@ export default function StockDetailPage() {
       return;
     }
 
-    // Track recent view in localStorage
     try {
       const stored = localStorage.getItem('recentStocks');
       let recentStocks: Array<{ symbol: string; timestamp: number }> = [];
@@ -54,25 +52,19 @@ export default function StockDetailPage() {
         recentStocks = JSON.parse(stored);
       }
       
-      // Remove existing entry for this symbol
       recentStocks = recentStocks.filter(s => s.symbol !== symbol);
-      
-      // Add to front
       recentStocks.unshift({ symbol, timestamp: Date.now() });
-      
-      // Keep only last 10
       recentStocks = recentStocks.slice(0, 10);
       
       localStorage.setItem('recentStocks', JSON.stringify(recentStocks));
     } catch (error) {
-      // localStorage might be disabled, fail silently
+      // Non-fatal
     }
   }, [symbol, router]);
 
   useEffect(() => {
     if (!symbol) return;
 
-    // Skip fetch if symbol is invalid
     const isValidSymbol = FEATURED_TICKERS.some(
       (ticker) => ticker.symbol === symbol
     );
@@ -200,7 +192,6 @@ export default function StockDetailPage() {
 
   return (
     <div className="min-h-screen bg-background relative">
-      {/* Animated grid background */}
       <AnimatedBackground />
       
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 relative">
@@ -215,7 +206,6 @@ export default function StockDetailPage() {
 
       <main className="container mx-auto px-4 py-8 relative z-10">
         <div className="space-y-6">
-          {/* Rate Limit Alert - only show if data is actually stale */}
           {metadata.prices?.isStale && metadata.prices.age > 60000 && (
             <Alert>
               <AlertTriangle className="h-4 w-4" />
@@ -227,7 +217,6 @@ export default function StockDetailPage() {
             </Alert>
           )}
 
-          {/* Header */}
           <Card className="p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-4">

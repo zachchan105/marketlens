@@ -3,13 +3,12 @@ import { getCache, setCache, getStaleCache, getCacheWithMetadata, CacheMetadata 
 const API_KEY = process.env.ALPHAVANTAGE_API_KEY || '';
 const BASE_URL = 'https://www.alphavantage.co/query';
 
-// Cache TTLs (conservative to preserve API calls)
 const OVERVIEW_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 const PRICES_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
-// Rate limiter (5 requests/minute limit)
+// Rate limiting: 12s between requests to stay under 5/min API limit
 let lastRequestTime = 0;
-const MIN_REQUEST_INTERVAL = 12000; // 12 seconds between requests
+const MIN_REQUEST_INTERVAL = 12000;
 async function rateLimit(): Promise<void> {
   const now = Date.now();
   const timeSinceLastRequest = now - lastRequestTime;
@@ -57,24 +56,20 @@ export async function fetchOverview(symbol: string): Promise<{
 }> {
   const cacheKey = `overview_${symbol}`;
   
-  // Try fresh cache first
   const cached = await getCacheWithMetadata<any>(cacheKey);
   if (cached && !cached.metadata.isStale) {
     return { data: cached.data, metadata: cached.metadata };
   }
   
-  // Try fetching from API
   try {
     const data = await makeRequest({
       function: 'OVERVIEW',
       symbol,
     });
     
-    // Don't cache errors or rate limit messages
     if (data['Error Message'] || data['Note'] || data['Information']) {
       console.warn(`API returned error for ${symbol}:`, data['Error Message'] || data['Note'] || data['Information']);
       
-      // Try to return stale cache as fallback
       const staleCache = await getCacheWithMetadata<any>(cacheKey);
       if (staleCache) {
         return {
@@ -86,12 +81,10 @@ export async function fetchOverview(symbol: string): Promise<{
       throw new Error(data['Information'] || data['Note'] || data['Error Message'] || 'API error');
     }
     
-    // Only cache valid data that has Symbol
     if (data['Symbol']) {
-      // Stagger expiration: Add 0-2 days offset based on symbol hash
-      // This prevents all 15 stocks from expiring on the same day
+      // Stagger expiration by 0-2 days to avoid simultaneous cache invalidation
       const hash = symbol.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-      const staggerOffset = (hash % 3) * 24 * 60 * 60 * 1000; // 0, 1, or 2 days
+      const staggerOffset = (hash % 3) * 24 * 60 * 60 * 1000;
       const staggeredTTL = OVERVIEW_TTL + staggerOffset;
       
       await setCache(cacheKey, data, staggeredTTL);
@@ -126,25 +119,21 @@ export async function fetchDailyPrices(symbol: string): Promise<{
 }> {
   const cacheKey = `prices_${symbol}`;
   
-  // Try fresh cache first
   const cached = await getCacheWithMetadata<any>(cacheKey);
   if (cached && !cached.metadata.isStale) {
     return { data: cached.data, metadata: cached.metadata };
   }
   
-  // Try fetching from API
   try {
     const data = await makeRequest({
-      function: 'TIME_SERIES_DAILY', // Free tier endpoint (not ADJUSTED)
+      function: 'TIME_SERIES_DAILY',
       symbol,
-      outputsize: 'compact', // Last 100 data points
+      outputsize: 'compact',
     });
     
-    // Don't cache errors or rate limit messages
     if (data['Error Message'] || data['Note'] || data['Information']) {
       console.warn(`API returned error for ${symbol}:`, data['Error Message'] || data['Note'] || data['Information']);
       
-      // Try to return stale cache as fallback
       const staleCache = await getCacheWithMetadata<any>(cacheKey);
       if (staleCache) {
         return {
@@ -156,7 +145,6 @@ export async function fetchDailyPrices(symbol: string): Promise<{
       throw new Error(data['Information'] || data['Note'] || data['Error Message'] || 'API error');
     }
     
-    // Only cache valid data that has Time Series
     if (data['Time Series (Daily)']) {
       await setCache(cacheKey, data, PRICES_TTL);
     }

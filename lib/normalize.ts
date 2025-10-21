@@ -44,7 +44,6 @@ export function normalizeOverview(data: any): CompanyOverview | null {
   };
 }
 
-// Parse TIME_SERIES_DAILY response into usable format
 export function normalizeDailyPrices(data: any): DailyPrice[] {
   if (!data || !data['Time Series (Daily)']) {
     return [];
@@ -65,10 +64,8 @@ export function normalizeDailyPrices(data: any): DailyPrice[] {
     prices.push(price);
   }
 
-  // Sort by date descending (newest first)
   prices.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  // Calculate percent change from previous day
   for (let i = prices.length - 1; i >= 0; i--) {
     if (i < prices.length - 1) {
       const current = prices[i].close;

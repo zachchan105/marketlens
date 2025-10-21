@@ -3,7 +3,6 @@ import path from 'path';
 
 const CACHE_DIR = path.join(process.cwd(), '.next', 'cache', 'alphavantage');
 
-// Read cache file with timestamp
 export async function readCacheFile(key: string): Promise<{ data: any; timestamp: number } | null> {
   try {
     const sanitized = key.replace(/[^a-z0-9_-]/gi, '_').toLowerCase();
@@ -16,7 +15,6 @@ export async function readCacheFile(key: string): Promise<{ data: any; timestamp
   }
 }
 
-// Get all cached data for homepage (overview + latest price)
 export async function getCachedStockData(symbols: string[]) {
   const results = await Promise.all(
     symbols.map(async (symbol) => {
@@ -36,7 +34,7 @@ export async function getCachedStockData(symbols: string[]) {
         if (latest) {
           priceData = {
             price: parseFloat(latest['4. close']),
-            timestamp: prices.timestamp, // Use actual cache fetch time!
+            timestamp: prices.timestamp,
           };
         }
       }
