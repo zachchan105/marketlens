@@ -34,13 +34,13 @@ The free tier has strict limits:
 - **25 requests per day**
 - **5 requests per minute**
 
-For 15 stocks with full data, that's 30 requests (OVERVIEW + PRICES for each). This exceeds the daily limit.
+For 18 stocks with full data, that's 36 requests (OVERVIEW + PRICES for each). This exceeds the daily limit.
 
 ## How I Solved It
 
 **Static Homepage**
 - No API calls for the homepage
-- Shows 15 stock cards with logos and basic info
+- Shows 18 stock cards with logos and basic info
 - Instant load, always available
 
 **Smart Caching**

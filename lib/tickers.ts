@@ -4,7 +4,7 @@ export interface StockTicker {
   sector: 'tech' | 'finance' | 'healthcare' | 'energy' | 'consumer' | 'industrial';
 }
 
-// 15 popular stocks across different sectors
+// 18 popular stocks across different sectors (includes dividend-focused stocks)
 export const FEATURED_TICKERS: StockTicker[] = [
   { symbol: 'AMD', name: 'Advanced Micro Devices', sector: 'tech' },
   { symbol: 'AAPL', name: 'Apple Inc.', sector: 'tech' },
@@ -21,5 +21,8 @@ export const FEATURED_TICKERS: StockTicker[] = [
   { symbol: 'PG', name: 'Procter & Gamble Co.', sector: 'consumer' },
   { symbol: 'MA', name: 'Mastercard Inc.', sector: 'finance' },
   { symbol: 'UNH', name: 'UnitedHealth Group Inc.', sector: 'healthcare' },
+  { symbol: 'KO', name: 'The Coca-Cola Company', sector: 'consumer' },
+  { symbol: 'VZ', name: 'Verizon Communications Inc.', sector: 'industrial' },
+  { symbol: 'CVX', name: 'Chevron Corporation', sector: 'energy' },
 ];
 

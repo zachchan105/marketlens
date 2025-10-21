@@ -23,6 +23,9 @@ declare -A DOMAINS=(
   ["PG"]="pg.com"
   ["MA"]="mastercard.com"
   ["UNH"]="unitedhealthgroup.com"
+  ["KO"]="coca-cola.com"
+  ["VZ"]="verizon.com"
+  ["CVX"]="chevron.com"
 )
 
 echo "🎨 Fetching company logos from Clearbit..."
