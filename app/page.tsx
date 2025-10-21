@@ -4,6 +4,7 @@ import { FEATURED_TICKERS } from "@/lib/tickers";
 import { EnhancedStockCard } from "@/components/enhanced-stock-card";
 import { getCachedStockData } from "@/lib/cache-reader";
 import { AnimatedBackground } from "@/components/animated-background";
+import { RecentStocks } from "@/components/recent-stocks";
 
 export default async function HomePage() {
   // Read cached data from files (no API calls!)
@@ -33,11 +34,16 @@ export default async function HomePage() {
       </header>
 
       <main className="container mx-auto px-4 py-8 relative z-10">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-foreground mb-2 text-balance">Market Overview</h2>
-          <p className="text-muted-foreground text-pretty">
-            Click any stock to view detailed analysis and historical performance
-          </p>
+        <div className="mb-8 flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+          <div>
+            <h2 className="text-3xl font-bold text-foreground mb-2 text-balance">Market Overview</h2>
+            <p className="text-muted-foreground text-pretty">
+              Click any stock to view detailed analysis and historical performance
+            </p>
+          </div>
+          
+          {/* Recent Stocks Toolbar */}
+          <RecentStocks />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

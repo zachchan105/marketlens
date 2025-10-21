@@ -44,6 +44,29 @@ export default function StockDetailPage() {
       router.push('/');
       return;
     }
+
+    // Track recent view in localStorage
+    try {
+      const stored = localStorage.getItem('recentStocks');
+      let recentStocks: Array<{ symbol: string; timestamp: number }> = [];
+      
+      if (stored) {
+        recentStocks = JSON.parse(stored);
+      }
+      
+      // Remove existing entry for this symbol
+      recentStocks = recentStocks.filter(s => s.symbol !== symbol);
+      
+      // Add to front
+      recentStocks.unshift({ symbol, timestamp: Date.now() });
+      
+      // Keep only last 10
+      recentStocks = recentStocks.slice(0, 10);
+      
+      localStorage.setItem('recentStocks', JSON.stringify(recentStocks));
+    } catch (error) {
+      // localStorage might be disabled, fail silently
+    }
   }, [symbol, router]);
 
   useEffect(() => {
