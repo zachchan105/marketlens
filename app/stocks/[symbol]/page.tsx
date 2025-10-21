@@ -1,0 +1,246 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { TrendingUp, TrendingDown, ArrowLeft, AlertCircle, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { StockChart } from "@/components/stock-chart";
+import { StockMetrics } from "@/components/stock-metrics";
+import { PriceHistory } from "@/components/price-history";
+import { CompanyOverview, DailyPrice } from "@/lib/normalize";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { DataFreshnessBadge } from "@/components/data-freshness-badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CacheMetadata } from "@/lib/cache";
+
+export default function StockDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const symbol = params?.symbol as string;
+
+  const [overview, setOverview] = useState<CompanyOverview | null>(null);
+  const [prices, setPrices] = useState<DailyPrice[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [metadata, setMetadata] = useState<{
+    overview?: CacheMetadata;
+    prices?: CacheMetadata;
+  }>({});
+
+  useEffect(() => {
+    if (!symbol) return;
+
+    async function fetchData() {
+      try {
+        const [overviewRes, pricesRes] = await Promise.all([
+          fetch(`/api/overview?symbol=${symbol}`),
+          fetch(`/api/prices?symbol=${symbol}`),
+        ]);
+
+        const overviewData = await overviewRes.json();
+        const pricesData = await pricesRes.json();
+
+        if (overviewData.error || pricesData.error) {
+          throw new Error(
+            overviewData.error || pricesData.error || 'Failed to fetch stock data'
+          );
+        }
+
+        if (!overviewData.data || !pricesData.data) {
+          throw new Error('No data available - API rate limit may have been reached');
+        }
+
+        setOverview(overviewData.data);
+        setPrices(pricesData.data);
+        setMetadata({
+          overview: overviewData.metadata,
+          prices: pricesData.metadata,
+        });
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchData();
+  }, [symbol]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <Skeleton className="h-10 w-48" />
+            <Skeleton className="h-9 w-9 rounded-lg" />
+          </div>
+        </header>
+        <main className="container mx-auto px-4 py-8">
+          <div className="space-y-6">
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-96 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    const isRateLimit = error.includes('rate limit') || error.includes('25 requests');
+    
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+            <Button variant="ghost" size="sm" onClick={() => router.push("/")} className="-ml-2">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Market
+            </Button>
+            <ThemeToggle />
+          </div>
+        </header>
+        <main className="container mx-auto px-4 py-8">
+          <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+            <AlertCircle className="h-16 w-16 text-destructive" />
+            <h2 className="text-2xl font-bold">
+              {isRateLimit ? 'API Rate Limit Reached' : 'Error Loading Stock Data'}
+            </h2>
+            <p className="text-muted-foreground text-center max-w-md">
+              {isRateLimit 
+                ? 'AlphaVantage free tier allows 25 requests per day. The limit resets at midnight UTC. Cached data may still be available for some stocks.'
+                : error}
+            </p>
+            <Button onClick={() => router.push('/')}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Home
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!overview || !prices || prices.length < 2) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-4">Unable to load stock data</p>
+          <Button onClick={() => router.push("/")}>
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const latestPrice = prices[0];
+  const previousPrice = prices[1];
+  const changeAmount = latestPrice.close - previousPrice.close;
+  const changePercent = (changeAmount / previousPrice.close) * 100;
+  const isPositive = changePercent >= 0;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <Button variant="ghost" size="sm" onClick={() => router.push("/")} className="-ml-2">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Market
+          </Button>
+          <ThemeToggle />
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="space-y-6">
+          {/* Rate Limit Alert */}
+          {(metadata.overview?.isStale || metadata.prices?.isStale) && (
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>
+                Showing cached data. API rate limit may have been reached (25 requests/day). 
+                Data freshness: {metadata.prices && (
+                  <DataFreshnessBadge
+                    fetchedAt={metadata.prices.fetchedAt}
+                    age={metadata.prices.age}
+                    isStale={metadata.prices.isStale}
+                  />
+                )}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Header */}
+          <Card className="p-6">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <div className="size-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden">
+                  <img src={`/logos/${symbol}.png`} alt={symbol} className="size-14 object-contain" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-3xl font-bold text-foreground">{symbol}</h1>
+                    {metadata.prices && (
+                      <DataFreshnessBadge
+                        fetchedAt={metadata.prices.fetchedAt}
+                        age={metadata.prices.age}
+                        isStale={metadata.prices.isStale}
+                      />
+                    )}
+                  </div>
+                  <p className="text-muted-foreground">{overview.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {overview.exchange} • {overview.sector}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-end gap-4">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Current Price</p>
+                <p className="text-4xl font-bold text-foreground">${latestPrice.close.toFixed(2)}</p>
+              </div>
+              <div
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 rounded-lg mb-1",
+                  isPositive
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    : "bg-red-500/10 text-red-600 dark:text-red-400"
+                )}
+              >
+                {isPositive ? <TrendingUp className="size-5" /> : <TrendingDown className="size-5" />}
+                <span className="font-semibold">
+                  {isPositive ? "+" : ""}${changeAmount.toFixed(2)} ({isPositive ? "+" : ""}
+                  {changePercent.toFixed(2)}%)
+                </span>
+              </div>
+            </div>
+          </Card>
+
+          {/* About */}
+          {overview.description !== "N/A" && (
+            <Card className="p-6">
+              <h2 className="text-xl font-semibold text-foreground mb-4">About {overview.name}</h2>
+              <p className="text-muted-foreground leading-relaxed text-pretty">{overview.description}</p>
+            </Card>
+          )}
+
+          {/* Chart */}
+          <StockChart prices={prices} symbol={symbol} />
+
+          {/* Metrics */}
+          <StockMetrics overview={overview} latestPrice={latestPrice} />
+
+          {/* Price History Table */}
+          <PriceHistory prices={prices.slice(0, 30)} />
+        </div>
+      </main>
+    </div>
+  );
+}

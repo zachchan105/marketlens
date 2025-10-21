@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MarketLens
 
-## Getting Started
+A clean stock market dashboard built with Next.js and the AlphaVantage API.
 
-First, run the development server:
+## Quick Start
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Add your API key
+echo "ALPHAVANTAGE_API_KEY=your_key_here" > .env.local
+
+# Fetch company logos (one-time setup)
+./scripts/fetch-logos.sh
+
+# Run development server
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 15 popular stocks on the homepage
+- Detailed company info, price history, and charts
+- Dark/light mode
+- Fully responsive
+- Works offline after initial data fetch
 
-## Learn More
+## The AlphaVantage Challenge
 
-To learn more about Next.js, take a look at the following resources:
+The free tier has strict limits:
+- **25 requests per day**
+- **5 requests per minute**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+For 15 stocks with full data, that's 30 requests (OVERVIEW + PRICES for each). This exceeds the daily limit.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How I Solved It
 
-## Deploy on Vercel
+**Static Homepage**
+- No API calls for the homepage
+- Shows 15 stock cards with logos and basic info
+- Instant load, always available
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Smart Caching**
+- Data fetches happen when you click a stock
+- Cached for 24 hours (prices) or 7 days (company info)
+- Old cache is never deleted - used as fallback when limits are hit
+- Shows freshness badges: "Live Data", "2h ago", etc.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Graceful Degradation**
+- If you hit the rate limit, old cached data is shown
+- Clear indicators tell you when data is stale
+- No crashes, no blank pages
+
+**Real Usage Pattern:**
+- First visit: Can view ~12 different stocks
+- After that: Everything loads instantly from cache
+- Works great for normal browsing
+
+## Project Structure
+
+```
+app/
+├── page.tsx                    # Homepage (static)
+├── stocks/[symbol]/page.tsx    # Stock details (dynamic)
+└── api/
+    ├── overview/route.ts       # Company data endpoint
+    └── prices/route.ts         # Price data endpoint
+
+lib/
+├── alphavantage.ts             # API client with rate limiting
+├── cache.ts                    # File-based cache
+├── normalize.ts                # Data formatting
+└── tickers.ts                  # Stock list
+
+components/
+├── stock-chart.tsx             # Price history chart
+├── stock-metrics.tsx           # Key statistics
+├── price-history.tsx           # Price table
+└── data-freshness-badge.tsx    # Cache indicators
+```
+
+## Tech Stack
+
+- **Next.js 15** - App Router
+- **TypeScript** - Type safety
+- **Tailwind CSS 4** - Styling
+- **shadcn/ui** - UI components
+- **Recharts** - Charts
+- **AlphaVantage** - Stock data
+- **pnpm** - Package manager
+
+## API Endpoints
+
+### GET `/api/overview?symbol=AAPL`
+Returns company information (name, sector, description, market cap, etc.)
+
+### GET `/api/prices?symbol=AAPL`
+Returns 100 days of price history with calculated daily changes
+
+Both endpoints include cache metadata.
+
+## Development
+
+```bash
+# Type check
+pnpm tsc --noEmit
+
+# Build for production
+pnpm build
+
+# Run production build
+pnpm start
+```
+
+## Deployment
+
+Works on Vercel, Netlify, or any platform that supports Next.js.
+
+Add your `ALPHAVANTAGE_API_KEY` environment variable in your deployment settings.
+
+## Notes
+
+- Company logos are stored locally in `/public/logos/`
+- Cache is stored in `.next/cache/alphavantage/`
+- The rate limiter ensures we stay under API limits
+- All 15 stocks can be viewed after the initial cache population
