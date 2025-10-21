@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { getRandomQuote } from "@/lib/quotes";
-import { useState, useEffect } from "react";
+import { useMemo } from "react";
 
 interface MarketLensLoaderProps {
   className?: string;
@@ -11,11 +11,8 @@ interface MarketLensLoaderProps {
 }
 
 export function MarketLensLoader({ className, size = "md", showQuote = true }: MarketLensLoaderProps) {
-  const [quote, setQuote] = useState("");
-
-  useEffect(() => {
-    setQuote(getRandomQuote());
-  }, []);
+  // Generate quote once on mount to avoid flash
+  const quote = useMemo(() => getRandomQuote(), []);
 
   const sizeClasses = {
     sm: "w-8 h-8",
