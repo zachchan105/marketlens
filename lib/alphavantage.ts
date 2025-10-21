@@ -88,7 +88,13 @@ export async function fetchOverview(symbol: string): Promise<{
     
     // Only cache valid data that has Symbol
     if (data['Symbol']) {
-      await setCache(cacheKey, data, OVERVIEW_TTL);
+      // Stagger expiration: Add 0-2 days offset based on symbol hash
+      // This prevents all 15 stocks from expiring on the same day
+      const hash = symbol.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+      const staggerOffset = (hash % 3) * 24 * 60 * 60 * 1000; // 0, 1, or 2 days
+      const staggeredTTL = OVERVIEW_TTL + staggerOffset;
+      
+      await setCache(cacheKey, data, staggeredTTL);
     }
     
     return {
