@@ -31,14 +31,14 @@ export function EnhancedStockCard({ symbol, name, sector, cachedData, showEmptyS
 
   return (
     <Link href={`/stocks/${symbol}`}>
-      <Card className="group cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:border-primary/50 h-full">
+      <Card className="group cursor-pointer transition-all duration-200 border-2 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(15,241,206,0.6)] hover:border-primary h-full">
         <CardContent className="p-5">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <img
                 src={`/logos/${symbol}.png`}
                 alt={`${name} logo`}
-                className="size-10 object-contain transition-all group-hover:scale-110 group-hover:drop-shadow-[0_0_20px_rgba(15,241,206,0.6)]"
+                className="size-10 object-contain"
               />
               <div>
                 <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
