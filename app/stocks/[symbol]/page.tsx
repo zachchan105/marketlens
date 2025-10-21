@@ -106,13 +106,13 @@ export default function StockDetailPage() {
         </header>
         <main className="container mx-auto px-4 py-8">
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-            <AlertCircle className="h-16 w-16 text-destructive" />
+            <AlertCircle className="h-16 w-16 text-muted-foreground" />
             <h2 className="text-2xl font-bold">
-              {isRateLimit ? 'API Rate Limit Reached' : 'Error Loading Stock Data'}
+              {isRateLimit ? 'Data temporarily unavailable' : 'Unable to load stock data'}
             </h2>
             <p className="text-muted-foreground text-center max-w-md">
               {isRateLimit 
-                ? 'AlphaVantage free tier allows 25 requests per day. The limit resets at midnight UTC. Cached data may still be available for some stocks.'
+                ? "We've reached today's data request limit. Some information may still be shown from cache — new data will be available automatically after midnight (UTC)."
                 : error}
             </p>
             <Button onClick={() => router.push('/')}>
