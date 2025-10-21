@@ -85,6 +85,18 @@ AlphaVantage's 25-call/day cap shaped how data is fetched:
 
 This design guarantees smooth behavior even when the free-tier API quota is reached.
 
+## Beyond the Requirements
+
+### Subtle Animated Background
+
+A slow-moving grid pattern adds visual depth without distraction. It's intentionally minimal — low CPU cost, no interference with content, and demonstrates clean integration of client-side animations in Next.js App Router (dynamic imports, SSR handling, theme awareness).
+
+### Recently Viewed Stocks
+
+Persists the last 5 viewed stocks in localStorage for faster navigation. Uses otherwise-empty space at the top of the homepage. Shows state management across client/server boundaries and adds a small layer of personalization without backend complexity.
+
+**Philosophy**: I only add features that are practical, simple, and serve a clear purpose. The file-based cache (vs Redis), local logos (vs API calls), and these two UX enhancements all follow that principle — solve real problems without unnecessary complexity.
+
 ## Project Structure
 
 ```
