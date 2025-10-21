@@ -16,6 +16,7 @@ import { DataFreshnessBadge } from "@/components/data-freshness-badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CacheMetadata } from "@/lib/cache";
 import { FEATURED_TICKERS } from "@/lib/tickers";
+import { AnimatedBackground } from "@/components/animated-background";
 
 export default function StockDetailPage() {
   const params = useParams();
@@ -92,8 +93,11 @@ export default function StockDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <div className="min-h-screen bg-background relative">
+        {/* Animated grid background */}
+        <AnimatedBackground />
+        
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 relative">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Button variant="ghost" size="sm" disabled className="-ml-2">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -102,7 +106,7 @@ export default function StockDetailPage() {
             <ThemeToggle />
           </div>
         </header>
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8 relative z-10">
           <div className="flex items-center justify-center min-h-[60vh]">
             <MarketLensLoader size="lg" />
           </div>
@@ -115,8 +119,11 @@ export default function StockDetailPage() {
     const isRateLimit = error.includes('rate limit') || error.includes('25 requests');
     
     return (
-      <div className="min-h-screen bg-background">
-        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <div className="min-h-screen bg-background relative">
+        {/* Animated grid background */}
+        <AnimatedBackground />
+        
+        <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 relative">
           <div className="container mx-auto px-4 py-4 flex items-center justify-between">
             <Button variant="ghost" size="sm" onClick={() => router.push("/")} className="-ml-2">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -125,7 +132,7 @@ export default function StockDetailPage() {
             <ThemeToggle />
           </div>
         </header>
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8 relative z-10">
           <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
             <AlertCircle className="h-16 w-16 text-muted-foreground" />
             <h2 className="text-2xl font-bold">
@@ -148,8 +155,10 @@ export default function StockDetailPage() {
 
   if (!overview || !prices || prices.length < 2) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-background flex items-center justify-center relative">
+        {/* Animated grid background */}
+        <AnimatedBackground />
+        <div className="text-center relative z-10">
           <p className="text-muted-foreground mb-4">Unable to load stock data</p>
           <Button onClick={() => router.push("/")}>
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -167,8 +176,11 @@ export default function StockDetailPage() {
   const isPositive = changePercent >= 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-background relative">
+      {/* Animated grid background */}
+      <AnimatedBackground />
+      
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 relative">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <Button variant="ghost" size="sm" onClick={() => router.push("/")} className="-ml-2">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -178,7 +190,7 @@ export default function StockDetailPage() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 relative z-10">
         <div className="space-y-6">
           {/* Rate Limit Alert - only show if data is actually stale */}
           {metadata.prices?.isStale && metadata.prices.age > 60000 && (

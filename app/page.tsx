@@ -3,6 +3,7 @@ import { TrendingUp } from "lucide-react";
 import { FEATURED_TICKERS } from "@/lib/tickers";
 import { EnhancedStockCard } from "@/components/enhanced-stock-card";
 import { getCachedStockData } from "@/lib/cache-reader";
+import { AnimatedBackground } from "@/components/animated-background";
 
 export default async function HomePage() {
   // Read cached data from files (no API calls!)
@@ -13,8 +14,11 @@ export default async function HomePage() {
   // Check if any stock has cached data
   const hasAnyCachedData = Object.values(cachedData).some(data => data !== null);
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+    <div className="min-h-screen bg-background relative">
+      {/* Animated grid background */}
+      <AnimatedBackground />
+      
+      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50 relative">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="size-10 rounded-lg bg-primary flex items-center justify-center">
@@ -28,7 +32,7 @@ export default async function HomePage() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 relative z-10">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-foreground mb-2 text-balance">Market Overview</h2>
           <p className="text-muted-foreground text-pretty">
