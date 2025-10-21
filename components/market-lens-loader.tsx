@@ -1,8 +1,6 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { getRandomQuote } from "@/lib/quotes";
-import { useMemo } from "react";
 
 interface MarketLensLoaderProps {
   className?: string;
@@ -11,8 +9,6 @@ interface MarketLensLoaderProps {
 }
 
 export function MarketLensLoader({ className, size = "md", showQuote = true }: MarketLensLoaderProps) {
-  // Generate quote once on mount to avoid flash
-  const quote = useMemo(() => getRandomQuote(), []);
 
   const sizeClasses = {
     sm: "w-8 h-8",
@@ -54,9 +50,9 @@ export function MarketLensLoader({ className, size = "md", showQuote = true }: M
           />
         </div>
       </div>
-      {showQuote && quote && (
+      {showQuote && (
         <p className="text-sm text-muted-foreground italic max-w-md text-center">
-          "{quote}"
+          "Markets move, patience profits."
         </p>
       )}
     </div>
