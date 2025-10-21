@@ -1,10 +1,17 @@
 import { ThemeToggle } from "@/components/theme-toggle";
 import { TrendingUp } from "lucide-react";
 import { FEATURED_TICKERS } from "@/lib/tickers";
-import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
+import { EnhancedStockCard } from "@/components/enhanced-stock-card";
+import { getCachedStockData } from "@/lib/cache-reader";
 
-export default function HomePage() {
+export default async function HomePage() {
+  // Read cached data from files (no API calls!)
+  const cachedData = await getCachedStockData(
+    FEATURED_TICKERS.map(t => t.symbol)
+  );
+  
+  // Check if any stock has cached data
+  const hasAnyCachedData = Object.values(cachedData).some(data => data !== null);
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
@@ -29,32 +36,16 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {FEATURED_TICKERS.map((ticker) => (
-            <Link key={ticker.symbol} href={`/stocks/${ticker.symbol}`}>
-              <Card className="group cursor-pointer transition-all hover:scale-105 hover:shadow-lg hover:border-primary/50">
-                <CardContent className="p-6">
-                  <div className="flex flex-col items-center text-center gap-3">
-                    <img
-                      src={`/logos/${ticker.symbol}.png`}
-                      alt={`${ticker.name} logo`}
-                      className="size-16 object-contain transition-all group-hover:scale-110 group-hover:drop-shadow-[0_0_20px_rgba(15,241,206,0.6)]"
-                    />
-                    <div>
-                      <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
-                        {ticker.symbol}
-                      </h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2">
-                        {ticker.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1 capitalize">
-                        {ticker.sector}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+            <EnhancedStockCard
+              key={ticker.symbol}
+              symbol={ticker.symbol}
+              name={ticker.name}
+              sector={ticker.sector}
+              cachedData={cachedData[ticker.symbol]}
+              showEmptyState={hasAnyCachedData}
+            />
           ))}
         </div>
       </main>
