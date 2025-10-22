@@ -88,6 +88,7 @@ export async function fetchOverview(symbol: string): Promise<{
       const staggeredTTL = OVERVIEW_TTL + staggerOffset;
       
       await setCache(cacheKey, data, staggeredTTL);
+      console.log(`✓ Cached overview for ${symbol} (TTL: ${Math.round(staggeredTTL / 86400000)}d)`);
     }
     
     return {
@@ -147,6 +148,7 @@ export async function fetchDailyPrices(symbol: string): Promise<{
     
     if (data['Time Series (Daily)']) {
       await setCache(cacheKey, data, PRICES_TTL);
+      console.log(`✓ Cached prices for ${symbol} (TTL: 24h)`);
     }
     
     return {
