@@ -72,6 +72,7 @@ export async function fetchOverview(symbol: string): Promise<{
       
       const staleCache = await getCacheWithMetadata<any>(cacheKey);
       if (staleCache) {
+        console.log(`⚠ Serving stale overview for ${symbol} from cache (age: ${Math.round(staleCache.metadata.age / 3600000)}h)`);
         return {
           data: staleCache.data,
           metadata: { ...staleCache.metadata, isStale: true },
@@ -104,6 +105,7 @@ export async function fetchOverview(symbol: string): Promise<{
     // Try to return stale cache as fallback (last known good)
     const staleCache = await getCacheWithMetadata<any>(cacheKey);
     if (staleCache) {
+      console.log(`⚠ API failed for ${symbol}, serving stale overview from cache (age: ${Math.round(staleCache.metadata.age / 3600000)}h)`);
       return {
         data: staleCache.data,
         metadata: { ...staleCache.metadata, isStale: true },
@@ -137,6 +139,7 @@ export async function fetchDailyPrices(symbol: string): Promise<{
       
       const staleCache = await getCacheWithMetadata<any>(cacheKey);
       if (staleCache) {
+        console.log(`⚠ Serving stale prices for ${symbol} from cache (age: ${Math.round(staleCache.metadata.age / 3600000)}h)`);
         return {
           data: staleCache.data,
           metadata: { ...staleCache.metadata, isStale: true },
@@ -164,6 +167,7 @@ export async function fetchDailyPrices(symbol: string): Promise<{
     // Try to return stale cache as fallback (last known good)
     const staleCache = await getCacheWithMetadata<any>(cacheKey);
     if (staleCache) {
+      console.log(`⚠ API failed for ${symbol}, serving stale prices from cache (age: ${Math.round(staleCache.metadata.age / 3600000)}h)`);
       return {
         data: staleCache.data,
         metadata: { ...staleCache.metadata, isStale: true },
