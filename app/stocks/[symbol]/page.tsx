@@ -155,7 +155,7 @@ export default function StockDetailPage() {
             </h2>
             <p className="text-muted-foreground text-center max-w-md">
               {isRateLimit 
-                ? "We've reached today's data request limit. Some information may still be shown from cache — new data will be available automatically after midnight (UTC)."
+                ? "We've reached today's data request limit. Some information may still be shown from cache. Please try again later."
                 : error}
             </p>
             <Button onClick={() => router.push('/')}>
