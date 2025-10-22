@@ -11,7 +11,7 @@ pnpm install
 # Add your API key
 echo "ALPHAVANTAGE_API_KEY=your_key_here" > .env.local
 
-# Fetch company logos (one-time setup)
+# Fetch company logos (one-time setup, logos already installed for default stocks)
 ./scripts/fetch-logos.sh
 
 # Run development server
@@ -26,7 +26,6 @@ Visit `http://localhost:3000`
 - Detailed company info, price history, and charts
 - Dark/light mode
 - Fully responsive
-- Works offline after initial data fetch
 
 ## The AlphaVantage Challenge
 
@@ -38,10 +37,11 @@ For 18 stocks with full data, that's 36 requests (OVERVIEW + PRICES for each). T
 
 ## How I Solved It
 
-**Static Homepage**
-- No API calls for the homepage
-- Shows 18 stock cards with logos and basic info
-- Instant load, always available
+**Dynamic Homepage**
+- Server-rendered on every request to show current cache state
+- No API calls on page load
+- Shows 18 stock cards with logos and cached data
+- Instant load, always reflects latest cache
 
 **Smart Caching**
 - Data fetches happen when you click a stock
@@ -101,23 +101,35 @@ Persists the last 5 viewed stocks in localStorage for faster navigation. Uses ot
 
 ```
 app/
-├── page.tsx                    # Homepage (static)
-├── stocks/[symbol]/page.tsx    # Stock details (dynamic)
+├── page.tsx                      # Homepage (dynamic SSR)
+├── layout.tsx                    # Root layout with theme
+├── stocks/[symbol]/
+│   ├── page.tsx                  # Stock details
+│   ├── loading.tsx               # Loading state
+│   └── error.tsx                 # Error boundary
 └── api/
-    ├── overview/route.ts       # Company data endpoint
-    └── prices/route.ts         # Price data endpoint
+    ├── overview/route.ts         # Company data endpoint
+    └── prices/route.ts           # Price data endpoint
 
 lib/
-├── alphavantage.ts             # API client with rate limiting
-├── cache.ts                    # File-based cache
-├── normalize.ts                # Data formatting
-└── tickers.ts                  # Stock list
+├── alphavantage.ts               # API client with rate limiting
+├── cache.ts                      # File-based cache
+├── cache-reader.ts               # Server-side cache reader
+├── normalize.ts                  # Data formatting
+├── time-utils.ts                 # Time formatting utilities
+└── tickers.ts                    # Featured stock list
 
 components/
-├── stock-chart.tsx             # Price history chart
-├── stock-metrics.tsx           # Key statistics
-├── price-history.tsx           # Price table
-└── data-freshness-badge.tsx    # Cache indicators
+├── enhanced-stock-card.tsx       # Homepage stock cards
+├── stock-chart.tsx               # Price history chart
+├── stock-metrics.tsx             # Key statistics
+├── price-history.tsx             # Price table (responsive)
+├── data-freshness-badge.tsx      # Cache indicators
+├── market-lens-loader.tsx        # Loading animation
+├── recent-stocks.tsx             # Recently viewed toolbar
+├── animated-background.tsx       # Grid animation
+├── theme-toggle.tsx              # Dark/light mode toggle
+└── ui/                           # shadcn/ui components
 ```
 
 ## Tech Stack
@@ -143,25 +155,16 @@ Both endpoints include cache metadata.
 ## Development
 
 ```bash
-# Type check
-pnpm tsc --noEmit
+# Development server
+pnpm dev
 
-# Build for production
+# Production build
 pnpm build
-
-# Run production build
 pnpm start
 ```
 
 ## Deployment
 
-Works on Vercel, Netlify, or any platform that supports Next.js.
+Tested on a simple Linux server with nginx
 
-Add your `ALPHAVANTAGE_API_KEY` environment variable in your deployment settings.
-
-## Notes
-
-- Company logos are stored locally in `/public/logos/`
-- Cache is stored in `.next/cache/alphavantage/`
-- The rate limiter ensures we stay under API limits
-- All 18 stocks can be viewed after the initial cache population
+Set `ALPHAVANTAGE_API_KEY` as an environment variable in your deployment settings.
