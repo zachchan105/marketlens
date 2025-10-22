@@ -6,7 +6,7 @@ import { getCachedStockData } from "@/lib/cache-reader";
 import { AnimatedBackground } from "@/components/animated-background";
 import { RecentStocks } from "@/components/recent-stocks";
 
-export const revalidate = 30;
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const cachedData = await getCachedStockData(
